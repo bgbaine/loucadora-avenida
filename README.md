@@ -2,6 +2,12 @@
 
 # para rodar: npx ts-node index.ts
 
+# codes git:
+# git add .
+# git commit -m
+# git branch
+# git push origin main
+
 
 # Trabalho final POO
 
