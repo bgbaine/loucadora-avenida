@@ -20,37 +20,50 @@ export class Cliente extends Pessoa {
     this._cpf = cpf;
     this._endereco = endereco;
     this._telefone = telefone;
-    Cliente.clientes.push(this);
   }
 
   /* TODO: dependendo da arquitetura, criar metodo adicionarCliente() 
     se for o caso: passar para csv ANTES
     public adicionarCliente(): void  {}*/
 
-    public static adicionarCliente(cliente: Cliente): void {
-      Cliente.clientes.push(cliente);
-      console.log(`Cliente ${cliente.nome} adicionado com sucesso.`);
-    }
+  public static checarCliente(cpf: string): boolean {
+    return Cliente.clientes.some((cliente) => cliente._cpf === cpf);
+  }
 
+  public static adicionarCliente(cliente: Cliente): void {
+    Cliente.clientes.push(cliente);
+    console.log(`Cliente ${cliente.nome} adicionado com sucesso.`);
+  }
 
   // TODO: implementar metodo atualizarCadastro(): passar para csv ANTES
-  public atualizarCadastro(nome?: string, endereco?: string, telefone?: string): void {
-    if (nome) this._nome = nome;
-    if (endereco) this._endereco = endereco;
-    if (telefone) this._telefone = telefone;
-    
-    console.log(`Cadastro de ${this.nome} atualizado com sucesso.`);
+  public static atualizarCadastro(
+    cpf: string,
+    nome?: string,
+    endereco?: string,
+    telefone?: string
+  ): void {
+    const cliente = Cliente.clientes.find((cliente) => cliente._cpf === cpf);
+    if (cliente) {
+      if (nome) cliente._nome = nome;
+      if (endereco) cliente._endereco = endereco;
+      if (telefone) cliente._telefone = telefone;
+
+      console.log(`Cadastro de ${cliente.nome} atualizado com sucesso.`);
+    } else {
+      console.log("Cliente não encontrado.");
+    }
   }
 
   // TODO: implementar metodo removerCliente(): passar para csv ANTES
   public static removerCliente(cpf: string): void {
-    const index = Cliente.clientes.findIndex(cliente => cliente._cpf === cpf);
+    const index = Cliente.clientes.findIndex((cliente) => cliente._cpf === cpf);
     if (index !== -1) {
       const clienteRemovido = Cliente.clientes.splice(index, 1);
       console.log(`Cliente ${clienteRemovido[0].nome} removido com sucesso.`);
     } else {
       console.log("Cliente não encontrado.");
-    }}
+    }
+  }
 
   // TODO: passar para csv
   public static listarClientes(): void {
@@ -58,8 +71,11 @@ export class Cliente extends Pessoa {
       console.log("Nenhum cliente cadastrado.");
     } else {
       console.log("Listando clientes:");
-      Cliente.clientes.forEach(cliente => {
-        console.log(`Nome: ${cliente.nome}, CPF: ${cliente._cpf}, Endereço: ${cliente._endereco}, Telefone: ${cliente._telefone}`);
+      Cliente.clientes.forEach((cliente) => {
+        console.log(
+          `Nome: ${cliente.nome}, CPF: ${cliente._cpf}, Endereço: ${cliente._endereco}, Telefone: ${cliente._telefone}`
+        );
       });
     }
-}}
+  }
+}
