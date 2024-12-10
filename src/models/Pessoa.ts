@@ -15,8 +15,21 @@ export class Pessoa {
     se for o caso: passar para csv ANTES
     public adicionarPessoa(): void  {}*/
 
+  public adicionarPessoa(): void {
+    console.log(`adicionando pessoa: ${this.nome}`);
+  }
+
+  public listarPessoas(): Pessoa[] {
+    console.log("Listando pessoas...");
+    return [];
+  }
+
   // TODO: implementar metodo atualizarCadastro(): passar para csv ANTES
   public atualizarCadastro(): void {
     console.log(`atualizando pessoa: ${this.nome}`);
+  }
+
+  public removerPessoa(): void {
+    console.log(`removendo pessoa: ${this.nome}`);
   }
 }
