@@ -30,6 +30,14 @@ export class Locacao {
     return this._id;
   }
 
+  public get locacoesAtivas(): Locacao[] {
+    return Locacao.locacoesAtivas;
+  }
+  
+  public set dataEntrega(novaData : number) {
+    this._dataEntrega = novaData;
+  }
+  
   public static async carregarLocacoes(): Promise<void> {
     try {
       Locacao.locacoesAtivas = await Locacao.lerLocacoesCSV("locacoesAtivas.csv");
@@ -114,10 +122,19 @@ export class Locacao {
     const index = Locacao.locacoesAtivas.findIndex(
       (locacao) => locacao._id === id
     );
+    
     if (index !== -1) {
-      const locacaoEncerrada = Locacao.locacoesAtivas.splice(index, 1);
-      locacaoEncerrada[0]._dataEntrega = new Date().getTime();
-      console.log(`Locacao #${locacaoEncerrada[0].id} encerrada com sucesso.`);
+      const locacaoEncerrada: Locacao | undefined = Locacao.locacoes.find(locacao => locacao.id === id);
+
+      if (!locacaoEncerrada) {
+        console.error("Locacao não encontrada.");
+        return;
+      }
+      
+      locacaoEncerrada.dataEntrega = new Date().getTime();
+      
+      const locacaoAtivaEncerrada = Locacao.locacoesAtivas.splice(index, 1);
+      console.log(`Locacao #${locacaoAtivaEncerrada[0].id} encerrada com sucesso.`);
       await Locacao.salvarLocacoes();
     } else {
       console.log("Locacao não encontrada.");
