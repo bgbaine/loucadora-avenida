@@ -84,4 +84,8 @@ export class Filme {
     }
     // TODO: salvar a lista no CSV
   }
+
+  public static buscarFilme(imdb: string): Filme {
+    return Filme.filmes.find((filme) => filme._imdb === imdb)!;
+  }
 }

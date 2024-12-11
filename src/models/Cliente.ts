@@ -78,4 +78,8 @@ export class Cliente extends Pessoa {
       });
     }
   }
+
+  public static buscarCliente(cpf: string): Cliente {
+    return Cliente.clientes.find((cliente) => cliente._cpf === cpf)!;
+  }
 }

@@ -187,8 +187,30 @@ do {
             break;
           case 2:
             const cpfCliente: string = prompt("Digite o cpf do cliente: ");
+            Cliente.checarCliente(cpfCliente);
+
+            if (!Cliente.checarCliente(cpfCliente)) {
+              console.log("Cliente nao encontrado.");
+              break;
+            }
+
             const imdbFilme: string = prompt("Digite o id do IMDB do filme: ");
+            Filme.checarFilme(imdbFilme);
+
+            if (!Filme.checarFilme(imdbFilme)) {
+              console.log("Filme nao encontrado.");
+              break;
+            }
+
             const dataLocacao: number = new Date().getTime();
+
+            Locacao.realizarLocacao(
+              new Locacao(
+                Cliente.buscarCliente(cpfCliente),
+                Filme.buscarFilme(imdbFilme),
+                dataLocacao
+              )
+            );
 
             /*
 
@@ -202,7 +224,7 @@ do {
             break;
           case 3:
             Locacao.encerrarLocacao(
-              +prompt("Digite o id da locacao a ser removida: ")
+              +prompt("Digite o id da locacao a ser encerrada: ")
             );
             break;
           case 4:

@@ -1,3 +1,4 @@
+import formatDate from "../utils/formatDate";
 import { Cliente } from "./Cliente";
 import { Filme } from "./Filme";
 
@@ -17,7 +18,7 @@ export class Locacao {
 
   // TODO: passar para csv
   constructor(cliente: Cliente, filme: Filme, dataLocacao: number) {
-    this._id = Math.floor(Math.random() * 1_000);
+    this._id = new Date().getTime();
     this._cliente = cliente;
     this._filme = filme;
     this._dataLocacao = dataLocacao;
@@ -41,8 +42,9 @@ export class Locacao {
       (locacao) => locacao._id === id
     );
     if (index !== -1) {
-      const locacaoRemovida = Locacao.locacoesAtivas.splice(index, 1);
-      console.log(`Locacao #${locacaoRemovida[0].id} removida com sucesso.`);
+      const locacaoEncerrada = Locacao.locacoesAtivas.splice(index, 1);
+      locacaoEncerrada[0]._dataEntrega = new Date().getTime();
+      console.log(`Locacao #${locacaoEncerrada[0].id} encerrada com sucesso.`);
     } else {
       console.log("Locacao não encontrada.");
     }
@@ -54,9 +56,9 @@ export class Locacao {
       console.log("Nenhuma locacao ativa.");
     } else {
       console.log("Listando locacoes ativas:");
-      Locacao.locacoes.forEach((locacao) => {
+      Locacao.locacoesAtivas.forEach((locacao) => {
         console.log(
-          `ID: ${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo}, Data da Locacao: ${locacao._dataLocacao}`
+          `ID: ${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo}, Data da Locacao: ${formatDate(locacao._dataLocacao)}`
         );
       });
     }
@@ -64,13 +66,13 @@ export class Locacao {
 
   // TODO: passar para csv
   public static listarHistorico(): void {
-    if (Locacao.locacoesAtivas.length === 0) {
-      console.log("Nenhuma locacao ativa.");
+    if (Locacao.locacoes.length === 0) {
+      console.log("Nenhuma locacao encontrada.");
     } else {
-      console.log("Listando locacoes ativas:");
+      console.log("Listando histórico de locações: ");
       Locacao.locacoes.forEach((locacao) => {
         console.log(
-          `ID: ${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo}, Data da Locacao: ${locacao._dataLocacao}, Data da Entrega: ${locacao._dataEntrega}`
+          `ID: ${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo}, Data da Locacao: ${formatDate(locacao._dataLocacao)}, Data da Entrega: ${formatDate(locacao._dataEntrega)}`
         );
       });
     }
