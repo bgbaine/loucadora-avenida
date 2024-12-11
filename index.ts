@@ -2,6 +2,7 @@ import { Cliente } from "./src/models/Cliente";
 import { Filme } from "./src/models/Filme";
 import { Locacao } from "./src/models/Locacao";
 import promptSync from "prompt-sync";
+import { MenuUtils } from "./src/utils/MenuUtils";
 
 const prompt = promptSync();
 
@@ -27,9 +28,7 @@ async function startApp() {
 
   do {
     // console.log("\n".repeat(100));
-    console.log("=".repeat(15) + "LOUCADORA AVENIDA" + "=".repeat(15));
-    console.log("Escolha uma secao:");
-
+    MenuUtils.imprimirCabecalho("secao");
     console.log("1 - Filmes");
     console.log("2 - Clientes");
     console.log("3 - Locacoes");
@@ -41,8 +40,7 @@ async function startApp() {
         // console.log("\n".repeat(100));
         let escolhaFilme = 1_000;
         do {
-          console.log("=".repeat(15) + "LOUCADORA AVENIDA" + "=".repeat(15));
-          console.log("Escolha uma acao:");
+          MenuUtils.imprimirCabecalho("secao");
           console.log("1 - Listar filmes");
           console.log("2 - Adicionar filme");
           console.log("3 - Atualizar filme");
@@ -53,6 +51,7 @@ async function startApp() {
           switch (escolhaFilme) {
             case 1:
               Filme.listarFilmes();
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
             case 2:
               const titulo: string = prompt("Digite o titulo: ");
@@ -64,6 +63,7 @@ async function startApp() {
               const f: Filme = new Filme(titulo, autor, imdb, ano, pais);
 
               Filme.adicionarFilme(f);
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
             case 3:
               const imdbAtualizado: string = prompt(
@@ -94,9 +94,11 @@ async function startApp() {
                 anoAtualizado || undefined,
                 paisAtualizado || undefined
               );
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
             case 4:
               Filme.removerFilme(prompt("Id do IMDB: "));
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
           }
         } while (escolhaFilme != 5);
@@ -105,8 +107,8 @@ async function startApp() {
         // console.log("\n".repeat(100));
         let escolhaCliente = 1_000;
         do {
-          console.log("=".repeat(15) + "LOUCADORA AVENIDA" + "=".repeat(15));
-          console.log("Escolha uma acao:");
+          MenuUtils.imprimirCabecalho("acao");
+
           console.log("1 - Listar clientes");
           console.log("2 - Adicionar cliente");
           console.log("3 - Atualizar cliente");
@@ -117,6 +119,7 @@ async function startApp() {
           switch (escolhaCliente) {
             case 1:
               Cliente.listarClientes();
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
             case 2:
               const nome: string = prompt("Digite o Nome: ");
@@ -134,7 +137,7 @@ async function startApp() {
               );
 
               Cliente.adicionarCliente(c);
-
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
             case 3:
               const cpfAtualizado: string = prompt(
@@ -162,9 +165,11 @@ async function startApp() {
                 enderecoAtualizado || undefined,
                 telefoneAtualizado || undefined
               );
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
             case 4:
               Cliente.removerCliente(prompt("CPF: "));
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
           }
         } while (escolhaCliente != 5);
@@ -172,8 +177,8 @@ async function startApp() {
       case 3:
         let escolhaLocacao = 1_000;
         do {
-          console.log("=".repeat(15) + "LOUCADORA AVENIDA" + "=".repeat(15));
-          console.log("Escolha uma acao:");
+          MenuUtils.imprimirCabecalho("acao");
+
           console.log("1 - Listar locacoes ativas");
           console.log("2 - Adicionar locacao");
           console.log("3 - Encerrar locacao");
@@ -184,6 +189,7 @@ async function startApp() {
           switch (escolhaLocacao) {
             case 1:
               Locacao.listarLocacoes();
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
             case 2:
               const cpfCliente: string = prompt("Digite o cpf do cliente: ");
@@ -213,24 +219,17 @@ async function startApp() {
                   dataLocacao
                 )
               );
-
-              /*
-
-            TODO: buscar objeto Cliente e Filme a partir do cpf e imdb
-
-            const l: Locacao = new Locacao(OBJETO_CLIENTE, OBJETO_FILME, dataLocacao); 
-            
-            Locacao.realizarLocacao(l);
-
-            */
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
             case 3:
               Locacao.encerrarLocacao(
                 +prompt("Digite o id da locacao a ser encerrada: ")
               );
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
             case 4:
               Locacao.listarHistorico();
+              MenuUtils.pressioneEnterParaContinuar(prompt);
               break;
           }
         } while (escolhaLocacao != 5);
