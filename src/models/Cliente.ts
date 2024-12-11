@@ -40,14 +40,14 @@ export class Cliente extends Pessoa {
       cliente._endereco,
       cliente._telefone,
     ]);
-    writeToPath("clientes.csv", rows, {
+    writeToPath("data/clientes.csv", rows, {
       headers: ["nome", "cpf", "endereco", "telefone"],
     }).on("finish", () => console.log("Clientes salvos em CSV!"));
   }
 
   public static loadClientesFromCSV(): Promise<void> {
     return new Promise((resolve, reject) => {
-      fs.createReadStream("clientes.csv")
+      fs.createReadStream("data/clientes.csv")
         .pipe(parse({ headers: true }))
         .on("data", (row) => {
           const cliente = new Cliente(

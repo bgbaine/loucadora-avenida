@@ -43,14 +43,14 @@ export class Filme {
       filme._ano,
       filme._pais,
     ]);
-    writeToPath("filmes.csv", rows, {
+    writeToPath("data/filmes.csv", rows, {
       headers: ["titulo", "autor", "imdb", "ano", "pais"],
     }).on("finish", () => console.log("Filmes salvos em CSV!"));
   }
 
   public static loadFilmesFromCSV(): Promise<void> {
     return new Promise((resolve, reject) => {
-      fs.createReadStream("filmes.csv")
+      fs.createReadStream("data/filmes.csv")
         .pipe(parse({ headers: true }))
         .on("data", (row) => {
           const filme = new Filme(

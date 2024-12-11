@@ -44,9 +44,9 @@ export class Locacao {
   public static async carregarLocacoes(): Promise<void> {
     try {
       Locacao.locacoesAtivas = await Locacao.lerLocacoesCSV(
-        "locacoesAtivas.csv"
+        "data/locacoesAtivas.csv"
       );
-      Locacao.locacoes = await Locacao.lerLocacoesCSV("locacoes.csv");
+      Locacao.locacoes = await Locacao.lerLocacoesCSV("data/locacoes.csv");
       console.log("Locações carregadas do CSV!");
     } catch (error) {
       console.error("Erro ao carregar locações:", error);
@@ -86,10 +86,10 @@ export class Locacao {
 
   private static async salvarLocacoes(): Promise<void> {
     await Locacao.escreverLocacoesCSV(
-      "locacoesAtivas.csv",
+      "data/locacoesAtivas.csv",
       Locacao.locacoesAtivas
     );
-    await Locacao.escreverLocacoesCSV("locacoes.csv", Locacao.locacoes);
+    await Locacao.escreverLocacoesCSV("data/locacoes.csv", Locacao.locacoes);
   }
 
   private static async escreverLocacoesCSV(
