@@ -15,7 +15,7 @@ export class Locacao {
   private _dataEntrega: number | undefined;
 
   // TODO: passar para csv
-  private static locacoesAtivas: Locacao[] = [];
+  private static _locacoesAtivas: Locacao[] = [];
   private static locacoes: Locacao[] = [];
 
   // TODO: passar para csv
@@ -30,17 +30,22 @@ export class Locacao {
     return this._id;
   }
 
-  public get locacoesAtivas(): Locacao[] {
-    return Locacao.locacoesAtivas;
+  public static get locacoesAtivas(): Locacao[] {
+    return Locacao._locacoesAtivas;
   }
-  
-  public set dataEntrega(novaData : number) {
+  public static set locacoesAtivas(value: Locacao[]) {
+    Locacao._locacoesAtivas = value;
+  }
+
+  public set dataEntrega(novaData: number) {
     this._dataEntrega = novaData;
   }
-  
+
   public static async carregarLocacoes(): Promise<void> {
     try {
-      Locacao.locacoesAtivas = await Locacao.lerLocacoesCSV("locacoesAtivas.csv");
+      Locacao.locacoesAtivas = await Locacao.lerLocacoesCSV(
+        "locacoesAtivas.csv"
+      );
       Locacao.locacoes = await Locacao.lerLocacoesCSV("locacoes.csv");
       console.log("Locações carregadas do CSV!");
     } catch (error) {
@@ -69,7 +74,9 @@ export class Locacao {
             parseInt(row.dataLocacao)
           );
           locacao._id = parseInt(row.id);
-          locacao._dataEntrega = row.dataEntrega ? parseInt(row.dataEntrega) : undefined;
+          locacao._dataEntrega = row.dataEntrega
+            ? parseInt(row.dataEntrega)
+            : undefined;
           locacoes.push(locacao);
         })
         .on("end", () => resolve(locacoes))
@@ -122,19 +129,23 @@ export class Locacao {
     const index = Locacao.locacoesAtivas.findIndex(
       (locacao) => locacao._id === id
     );
-    
+
     if (index !== -1) {
-      const locacaoEncerrada: Locacao | undefined = Locacao.locacoes.find(locacao => locacao.id === id);
+      const locacaoEncerrada: Locacao | undefined = Locacao.locacoes.find(
+        (locacao) => locacao.id === id
+      );
 
       if (!locacaoEncerrada) {
         console.error("Locacao não encontrada.");
         return;
       }
-      
+
       locacaoEncerrada.dataEntrega = new Date().getTime();
-      
+
       const locacaoAtivaEncerrada = Locacao.locacoesAtivas.splice(index, 1);
-      console.log(`Locacao #${locacaoAtivaEncerrada[0].id} encerrada com sucesso.`);
+      console.log(
+        `Locacao #${locacaoAtivaEncerrada[0].id} encerrada com sucesso.`
+      );
       await Locacao.salvarLocacoes();
     } else {
       console.log("Locacao não encontrada.");
@@ -149,7 +160,8 @@ export class Locacao {
       console.log("Listando locacoes ativas:");
       Locacao.locacoesAtivas.forEach((locacao) => {
         console.log(
-          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo
+          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${
+            locacao._filme.titulo
           }, Data da Locacao: ${formatDate(locacao._dataLocacao)}`
         );
       });
@@ -164,7 +176,8 @@ export class Locacao {
       console.log("Listando histórico de locações: ");
       Locacao.locacoes.forEach((locacao) => {
         console.log(
-          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo
+          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${
+            locacao._filme.titulo
           }, Data da Locacao: ${formatDate(
             +locacao._dataLocacao
           )}, Data da Entrega: ${formatDate(locacao._dataEntrega)}`
