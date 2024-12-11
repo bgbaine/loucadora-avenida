@@ -1,7 +1,7 @@
 
-import { Cliente } from "./src/models/Cliente";
-import { Filme } from "./src/models/Filme";
-import { Locacao } from "./src/models/Locacao";
+import { Cliente } from "../../src/models/Cliente";
+import { Filme } from "../../src/models/Filme";
+import { Locacao } from "../../src/models/Locacao";
 
 describe("Locacao", () => {
   it("should add a new locacao", () => {

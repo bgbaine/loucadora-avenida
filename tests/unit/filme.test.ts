@@ -1,5 +1,5 @@
 
-import { Filme } from "./src/models/Filme";
+import { Filme } from "../../src/models/Filme";
 
 describe("Filme", () => {
   it("should add a new filme", () => {

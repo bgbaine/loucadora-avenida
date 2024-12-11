@@ -1,5 +1,5 @@
 
-import { Cliente } from "./src/models/Cliente";
+import { Cliente } from "../../src/models/Cliente";
 
 describe("Cliente", () => {
   it("should add a new cliente", () => {
