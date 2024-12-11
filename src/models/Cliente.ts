@@ -1,4 +1,7 @@
 import { Pessoa } from "./Pessoa";
+import fs from "fs";
+import { parse } from "fast-csv";
+import { writeToPath } from "fast-csv";
 
 export class Cliente extends Pessoa {
   private _cpf: string;
@@ -26,12 +29,45 @@ export class Cliente extends Pessoa {
     se for o caso: passar para csv ANTES
     public adicionarCliente(): void  {}*/
 
+  public get cpf(): string {
+    return this._cpf;
+  }
+
+  public static saveClientesToCSV(): void {
+    const rows = Cliente.clientes.map((cliente) => [
+      cliente.nome,
+      cliente._cpf,
+      cliente._endereco,
+      cliente._telefone,
+    ]);
+    writeToPath("clientes.csv", rows, {
+      headers: ["Nome", "CPF", "Endereco", "Telefone"],
+    }).on("finish", () => console.log("Clientes salvos em CSV!"));
+  }
+
+  public static loadClientesFromCSV(): void {
+    fs.createReadStream("clientes.csv")
+      .pipe(parse({ headers: true }))
+      .on("data", (row) => {
+        const cliente = new Cliente(
+          row.Nome,
+          parseInt(row.Idade),
+          row.CPF,
+          row.Endereco,
+          row.Telefone
+        );
+        Cliente.clientes.push(cliente);
+      })
+      .on("end", () => console.log("Clientes carregados do CSV!"));
+  }
+
   public static checarCliente(cpf: string): boolean {
     return Cliente.clientes.some((cliente) => cliente._cpf === cpf);
   }
 
   public static adicionarCliente(cliente: Cliente): void {
     Cliente.clientes.push(cliente);
+    Cliente.saveClientesToCSV();
     console.log(`Cliente ${cliente.nome} adicionado com sucesso.`);
   }
 

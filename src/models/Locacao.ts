@@ -1,3 +1,5 @@
+import fs from "fs";
+import * as fastcsv from "fast-csv";
 import formatDate from "../utils/formatDate";
 import { Cliente } from "./Cliente";
 import { Filme } from "./Filme";
@@ -28,16 +30,78 @@ export class Locacao {
     return this._id;
   }
 
+  public static async carregarLocacoes(): Promise<void> {
+    Locacao.locacoesAtivas = await Locacao.lerLocacoesCSV("locacoesAtivas.csv");
+    Locacao.locacoes = await Locacao.lerLocacoesCSV("locacoes.csv");
+  }
+
+  private static async lerLocacoesCSV(fileName: string): Promise<Locacao[]> {
+    const locacoes: Locacao[] = [];
+
+    return new Promise<Locacao[]>((resolve, reject) => {
+      fs.createReadStream(fileName)
+        .pipe(fastcsv.parse({ headers: true, skipEmptyLines: true } as any)) // Type assertion to avoid TypeScript error
+        .on("data", (row) => {
+          const cliente = Cliente.buscarCliente(row.cpf);
+          const filme = Filme.buscarFilme(row.imdb);
+          const locacao = new Locacao(
+            cliente,
+            filme,
+            parseInt(row.dataLocacao)
+          );
+          locacao._id = parseInt(row.id);
+          locacao._dataEntrega = row.dataEntrega
+            ? parseInt(row.dataEntrega)
+            : undefined;
+          locacoes.push(locacao);
+        })
+        .on("end", () => resolve(locacoes))
+        .on("error", (error) => reject(error));
+    });
+  }
+
+  private static async salvarLocacoes(): Promise<void> {
+    await Locacao.escreverLocacoesCSV(
+      "locacoesAtivas.csv",
+      Locacao.locacoesAtivas
+    );
+    await Locacao.escreverLocacoesCSV("locacoes.csv", Locacao.locacoes);
+  }
+
+  private static async escreverLocacoesCSV(
+    fileName: string,
+    locacoes: Locacao[]
+  ): Promise<void> {
+    const writableStream = fs.createWriteStream(fileName);
+
+    const stream = fastcsv.format({ headers: true });
+
+    stream.pipe(writableStream);
+
+    locacoes.forEach((locacao) => {
+      stream.write({
+        id: locacao.id,
+        cpf: locacao._cliente.cpf,
+        imdb: locacao._filme.imdb,
+        dataLocacao: locacao._dataLocacao,
+        dataEntrega: locacao._dataEntrega || "",
+      });
+    });
+
+    stream.end();
+  }
+
   /* TODO: dependendo da arquitetura, criar metodo realizarLocacao()
     se for o caso: passar para csv ANTES*/
-  public static realizarLocacao(locacao: Locacao): void {
+  public static async realizarLocacao(locacao: Locacao): Promise<void> {
     Locacao.locacoes.push(locacao);
     Locacao.locacoesAtivas.push(locacao);
-    console.log(`Locacao ${locacao.id} cadastrada com sucesso.`);
+    console.log(`Locacao #${locacao.id} cadastrada com sucesso.`);
+    await Locacao.salvarLocacoes();
   }
 
   // TODO: implementar metodo encerrarLocacao(): passar para csv ANTES
-  public static encerrarLocacao(id: number): void {
+  public static async encerrarLocacao(id: number): Promise<void> {
     const index = Locacao.locacoesAtivas.findIndex(
       (locacao) => locacao._id === id
     );
@@ -45,6 +109,7 @@ export class Locacao {
       const locacaoEncerrada = Locacao.locacoesAtivas.splice(index, 1);
       locacaoEncerrada[0]._dataEntrega = new Date().getTime();
       console.log(`Locacao #${locacaoEncerrada[0].id} encerrada com sucesso.`);
+      await Locacao.salvarLocacoes();
     } else {
       console.log("Locacao não encontrada.");
     }
@@ -58,7 +123,9 @@ export class Locacao {
       console.log("Listando locacoes ativas:");
       Locacao.locacoesAtivas.forEach((locacao) => {
         console.log(
-          `ID: ${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo}, Data da Locacao: ${formatDate(locacao._dataLocacao)}`
+          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${
+            locacao._filme.titulo
+          }, Data da Locacao: ${formatDate(locacao._dataLocacao)}`
         );
       });
     }
@@ -72,7 +139,11 @@ export class Locacao {
       console.log("Listando histórico de locações: ");
       Locacao.locacoes.forEach((locacao) => {
         console.log(
-          `ID: ${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo}, Data da Locacao: ${formatDate(locacao._dataLocacao)}, Data da Entrega: ${formatDate(locacao._dataEntrega)}`
+          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${
+            locacao._filme.titulo
+          }, Data da Locacao: ${formatDate(
+            +locacao._dataLocacao
+          )}, Data da Entrega: ${formatDate(locacao._dataEntrega)}`
         );
       });
     }

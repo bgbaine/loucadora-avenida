@@ -1,3 +1,7 @@
+import fs from "fs";
+import { parse } from "fast-csv";
+import { writeToPath } from "fast-csv";
+
 export class Filme {
   private _titulo: string;
   private _autor: string;
@@ -27,6 +31,39 @@ export class Filme {
     return this._titulo;
   }
 
+  public get imdb(): string {
+    return this._imdb;
+  }
+
+  public static saveFilmesToCSV(): void {
+    const rows = Filme.filmes.map((filme) => [
+      filme._titulo,
+      filme._autor,
+      filme._imdb,
+      filme._ano,
+      filme._pais,
+    ]);
+    writeToPath("filmes.csv", rows, {
+      headers: ["Titulo", "Autor", "IMDB", "Ano", "Pais"],
+    }).on("finish", () => console.log("Filmes salvos em CSV!"));
+  }
+
+  public static loadFilmesFromCSV(): void {
+    fs.createReadStream("filmes.csv")
+      .pipe(parse({ headers: true }))
+      .on("data", (row) => {
+        const filme = new Filme(
+          row.Titulo,
+          row.Autor,
+          row.IMDB,
+          parseInt(row.Ano),
+          row.Pais
+        );
+        Filme.filmes.push(filme);
+      })
+      .on("end", () => console.log("Filmes carregados do CSV!"));
+  }
+
   public static checarFilme(imdb: string): boolean {
     return Filme.filmes.some((filme) => filme._imdb === imdb);
   }
@@ -34,6 +71,7 @@ export class Filme {
   /* TODO: dependendo da arquitetura, criar metodo adicionarFilme() */
   public static adicionarFilme(filme: Filme): void {
     Filme.filmes.push(filme);
+    Filme.saveFilmesToCSV();
     console.log(`Filme ${filme.titulo} adicionado com sucesso.`);
   }
 
