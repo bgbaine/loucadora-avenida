@@ -41,25 +41,31 @@ export class Cliente extends Pessoa {
       cliente._telefone,
     ]);
     writeToPath("clientes.csv", rows, {
-      headers: ["Nome", "CPF", "Endereco", "Telefone"],
+      headers: ["nome", "cpf", "endereco", "telefone"],
     }).on("finish", () => console.log("Clientes salvos em CSV!"));
   }
 
-  public static loadClientesFromCSV(): void {
-    fs.createReadStream("clientes.csv")
-      .pipe(parse({ headers: true }))
-      .on("data", (row) => {
-        const cliente = new Cliente(
-          row.Nome,
-          parseInt(row.Idade),
-          row.CPF,
-          row.Endereco,
-          row.Telefone
-        );
-        Cliente.clientes.push(cliente);
-      })
-      .on("end", () => console.log("Clientes carregados do CSV!"));
-  }
+  public static loadClientesFromCSV(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      fs.createReadStream("clientes.csv")
+        .pipe(parse({ headers: true }))
+        .on("data", (row) => {
+          const cliente = new Cliente(
+            row.nome,
+            parseInt(row.idade),
+            row.cpf,
+            row.endereco,
+            row.telefone
+          );
+          Cliente.clientes.push(cliente);
+        })
+        .on("end", () => {
+          console.log("Clientes carregados do CSV!");
+          resolve();
+        })
+        .on("error", (error) => reject(error));
+    });
+    }
 
   public static checarCliente(cpf: string): boolean {
     return Cliente.clientes.some((cliente) => cliente._cpf === cpf);

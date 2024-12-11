@@ -1,5 +1,4 @@
 import { Cliente } from "./src/models/Cliente";
-import { Pessoa } from "./src/models/Pessoa";
 import { Filme } from "./src/models/Filme";
 import { Locacao } from "./src/models/Locacao";
 import promptSync from "prompt-sync";
@@ -7,10 +6,18 @@ import promptSync from "prompt-sync";
 const prompt = promptSync();
 
 async function loadData() {
-  // Load static arrays from CSV
-  await Cliente.loadClientesFromCSV();
-  await Filme.loadFilmesFromCSV();
-  await Locacao.carregarLocacoes();
+  try {
+    await Cliente.loadClientesFromCSV();
+    console.log("Clientes loaded successfully.");
+
+    await Filme.loadFilmesFromCSV();
+    console.log("Filmes loaded successfully.");
+
+    await Locacao.carregarLocacoes();
+    console.log("Locacoes loaded successfully.");
+  } catch (error) {
+    console.error("Error during data initialization:", error);
+  }
 }
 
 async function startApp() {

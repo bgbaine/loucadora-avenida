@@ -31,28 +31,37 @@ export class Locacao {
   }
 
   public static async carregarLocacoes(): Promise<void> {
-    Locacao.locacoesAtivas = await Locacao.lerLocacoesCSV("locacoesAtivas.csv");
-    Locacao.locacoes = await Locacao.lerLocacoesCSV("locacoes.csv");
+    try {
+      Locacao.locacoesAtivas = await Locacao.lerLocacoesCSV("locacoesAtivas.csv");
+      Locacao.locacoes = await Locacao.lerLocacoesCSV("locacoes.csv");
+      console.log("Locações carregadas do CSV!");
+    } catch (error) {
+      console.error("Erro ao carregar locações:", error);
+    }
   }
 
-  private static async lerLocacoesCSV(fileName: string): Promise<Locacao[]> {
+  private static lerLocacoesCSV(fileName: string): Promise<Locacao[]> {
     const locacoes: Locacao[] = [];
 
     return new Promise<Locacao[]>((resolve, reject) => {
       fs.createReadStream(fileName)
-        .pipe(fastcsv.parse({ headers: true, skipEmptyLines: true } as any)) // Type assertion to avoid TypeScript error
+        .pipe(fastcsv.parse({ headers: true, skipEmptyLines: true } as any))
         .on("data", (row) => {
           const cliente = Cliente.buscarCliente(row.cpf);
           const filme = Filme.buscarFilme(row.imdb);
+
+          if (!cliente || !filme) {
+            console.error(`Dados ausentes para linha: ${JSON.stringify(row)}`);
+            return; // Skip this row if data is missing
+          }
+
           const locacao = new Locacao(
             cliente,
             filme,
             parseInt(row.dataLocacao)
           );
           locacao._id = parseInt(row.id);
-          locacao._dataEntrega = row.dataEntrega
-            ? parseInt(row.dataEntrega)
-            : undefined;
+          locacao._dataEntrega = row.dataEntrega ? parseInt(row.dataEntrega) : undefined;
           locacoes.push(locacao);
         })
         .on("end", () => resolve(locacoes))
@@ -123,8 +132,7 @@ export class Locacao {
       console.log("Listando locacoes ativas:");
       Locacao.locacoesAtivas.forEach((locacao) => {
         console.log(
-          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${
-            locacao._filme.titulo
+          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo
           }, Data da Locacao: ${formatDate(locacao._dataLocacao)}`
         );
       });
@@ -139,8 +147,7 @@ export class Locacao {
       console.log("Listando histórico de locações: ");
       Locacao.locacoes.forEach((locacao) => {
         console.log(
-          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${
-            locacao._filme.titulo
+          `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${locacao._filme.titulo
           }, Data da Locacao: ${formatDate(
             +locacao._dataLocacao
           )}, Data da Entrega: ${formatDate(locacao._dataEntrega)}`

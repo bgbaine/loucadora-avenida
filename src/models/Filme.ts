@@ -44,25 +44,31 @@ export class Filme {
       filme._pais,
     ]);
     writeToPath("filmes.csv", rows, {
-      headers: ["Titulo", "Autor", "IMDB", "Ano", "Pais"],
+      headers: ["titulo", "autor", "imdb", "ano", "pais"],
     }).on("finish", () => console.log("Filmes salvos em CSV!"));
   }
 
-  public static loadFilmesFromCSV(): void {
-    fs.createReadStream("filmes.csv")
-      .pipe(parse({ headers: true }))
-      .on("data", (row) => {
-        const filme = new Filme(
-          row.Titulo,
-          row.Autor,
-          row.IMDB,
-          parseInt(row.Ano),
-          row.Pais
-        );
-        Filme.filmes.push(filme);
-      })
-      .on("end", () => console.log("Filmes carregados do CSV!"));
-  }
+  public static loadFilmesFromCSV(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      fs.createReadStream("filmes.csv")
+        .pipe(parse({ headers: true }))
+        .on("data", (row) => {
+          const filme = new Filme(
+            row.titulo,
+            row.autor,
+            row.imdb,
+            parseInt(row.ano),
+            row.pais
+          );
+          Filme.filmes.push(filme);
+        })
+        .on("end", () => {
+          console.log("Filmes carregados do CSV!");
+          resolve();
+        })
+        .on("error", (error) => reject(error));
+    });
+    }
 
   public static checarFilme(imdb: string): boolean {
     return Filme.filmes.some((filme) => filme._imdb === imdb);
