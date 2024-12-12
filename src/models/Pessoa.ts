@@ -7,14 +7,12 @@ export class Pessoa {
     this._idade = idade;
   }
 
+  // Getters e Setters
   public get nome(): string {
     return this._nome;
   }
 
-  /* TODO: dependendo da arquitetura, criar metodo adicionarPessoa()
-    se for o caso: passar para csv ANTES
-    public adicionarPessoa(): void  {}*/
-
+  // Metodos de instancia
   public adicionarPessoa(): void {
     console.log(`adicionando pessoa: ${this.nome}`);
   }
@@ -24,7 +22,6 @@ export class Pessoa {
     return [];
   }
 
-  // TODO: implementar metodo atualizarCadastro(): passar para csv ANTES
   public atualizarCadastro(): void {
     console.log(`atualizando pessoa: ${this.nome}`);
   }
@@ -32,4 +29,6 @@ export class Pessoa {
   public removerPessoa(): void {
     console.log(`removendo pessoa: ${this.nome}`);
   }
+
+  // Metodos estaticos
 }

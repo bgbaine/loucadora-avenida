@@ -9,10 +9,8 @@ export class Filme {
   private _ano: number;
   private _pais: string;
 
-  // TODO: passar para csv
   private static filmes: Filme[] = [];
 
-  // TODO: passar para csv
   constructor(
     titulo: string,
     autor: string,
@@ -27,6 +25,7 @@ export class Filme {
     this._pais = pais;
   }
 
+  // Getters e Setters
   public get titulo(): string {
     return this._titulo;
   }
@@ -35,7 +34,10 @@ export class Filme {
     return this._imdb;
   }
 
-  public static saveFilmesToCSV(): void {
+  // Metodos de instancia
+
+  // Metodos estaticos
+  public static salvarFilmes(): void {
     const rows = Filme.filmes.map((filme) => [
       filme._titulo,
       filme._autor,
@@ -48,7 +50,7 @@ export class Filme {
     }).on("finish", () => console.log("Filmes salvos em CSV!"));
   }
 
-  public static loadFilmesFromCSV(): Promise<void> {
+  public static carregarFilmes(): Promise<void> {
     return new Promise((resolve, reject) => {
       fs.createReadStream("data/filmes.csv")
         .pipe(parse({ headers: true }))
@@ -70,18 +72,17 @@ export class Filme {
     });
     }
 
+  // Verifica se o filme já está cadastrado
   public static checarFilme(imdb: string): boolean {
     return Filme.filmes.some((filme) => filme._imdb === imdb);
   }
 
-  /* TODO: dependendo da arquitetura, criar metodo adicionarFilme() */
   public static adicionarFilme(filme: Filme): void {
     Filme.filmes.push(filme);
-    Filme.saveFilmesToCSV();
+    Filme.salvarFilmes();
     console.log(`Filme ${filme.titulo} adicionado com sucesso.`);
   }
 
-  // TODO: implementar metodo atualizarFilme(): passar para csv ANTES
   public static atualizarFilme(
     imdb: string,
     titulo?: string,
@@ -102,7 +103,6 @@ export class Filme {
     }
   }
 
-  // TODO: implementar metodo removerFilme(): passar para csv ANTES
   public static removerFilme(imdb: string): void {
     const index = Filme.filmes.findIndex((filme) => filme._imdb === imdb);
     if (index !== -1) {
@@ -111,10 +111,8 @@ export class Filme {
     } else {
       console.log("Filme não encontrado.");
     }
-    // TODO: atualizar o CSV após remoção
   }
 
-  // TODO: passar para csv
   public static listarFilmes(): void {
     if (Filme.filmes.length === 0) {
       console.log("Nenhum filme cadastrado.");
@@ -126,9 +124,9 @@ export class Filme {
         );
       });
     }
-    // TODO: salvar a lista no CSV
   }
 
+  // Busca um filme (objeto do tipo Filme) pelo numero do IMDb
   public static buscarFilme(imdb: string): Filme {
     return Filme.filmes.find((filme) => filme._imdb === imdb)!;
   }

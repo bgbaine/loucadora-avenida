@@ -8,10 +8,8 @@ export class Cliente extends Pessoa {
   private _endereco: string;
   private _telefone: string;
 
-  // TODO: passar para csv
   private static clientes: Cliente[] = [];
 
-  // TODO: passar para csv
   constructor(
     nome: string,
     idade: number,
@@ -25,15 +23,15 @@ export class Cliente extends Pessoa {
     this._telefone = telefone;
   }
 
-  /* TODO: dependendo da arquitetura, criar metodo adicionarCliente() 
-    se for o caso: passar para csv ANTES
-    public adicionarCliente(): void  {}*/
-
+  // Getters e Setters
   public get cpf(): string {
     return this._cpf;
   }
 
-  public static saveClientesToCSV(): void {
+  // Metodos de instancia
+
+  // Metodos estaticos
+  public static salvarClientes(): void {
     const rows = Cliente.clientes.map((cliente) => [
       cliente.nome,
       cliente._cpf,
@@ -45,7 +43,7 @@ export class Cliente extends Pessoa {
     }).on("finish", () => console.log("Clientes salvos em CSV!"));
   }
 
-  public static loadClientesFromCSV(): Promise<void> {
+  public static carregarClientes(): Promise<void> {
     return new Promise((resolve, reject) => {
       fs.createReadStream("data/clientes.csv")
         .pipe(parse({ headers: true }))
@@ -65,19 +63,19 @@ export class Cliente extends Pessoa {
         })
         .on("error", (error) => reject(error));
     });
-    }
+  }
 
+  // Verifica se o cliente já está cadastrado
   public static checarCliente(cpf: string): boolean {
     return Cliente.clientes.some((cliente) => cliente._cpf === cpf);
   }
 
   public static adicionarCliente(cliente: Cliente): void {
     Cliente.clientes.push(cliente);
-    Cliente.saveClientesToCSV();
+    Cliente.salvarClientes();
     console.log(`Cliente ${cliente.nome} adicionado com sucesso.`);
   }
 
-  // TODO: implementar metodo atualizarCadastro(): passar para csv ANTES
   public static atualizarCadastro(
     cpf: string,
     nome?: string,
@@ -96,7 +94,6 @@ export class Cliente extends Pessoa {
     }
   }
 
-  // TODO: implementar metodo removerCliente(): passar para csv ANTES
   public static removerCliente(cpf: string): void {
     const index = Cliente.clientes.findIndex((cliente) => cliente._cpf === cpf);
     if (index !== -1) {
@@ -107,7 +104,6 @@ export class Cliente extends Pessoa {
     }
   }
 
-  // TODO: passar para csv
   public static listarClientes(): void {
     if (Cliente.clientes.length === 0) {
       console.log("Nenhum cliente cadastrado.");
@@ -121,6 +117,7 @@ export class Cliente extends Pessoa {
     }
   }
 
+  // Busca um cliente (objeto do tipo Cliente) pelo numero do cpf
   public static buscarCliente(cpf: string): Cliente {
     return Cliente.clientes.find((cliente) => cliente._cpf === cpf)!;
   }

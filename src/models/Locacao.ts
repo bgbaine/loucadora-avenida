@@ -1,6 +1,6 @@
 import fs from "fs";
 import * as fastcsv from "fast-csv";
-import formatDate from "../utils/formatDate";
+import formatarData from "../utils/formatarData";
 import { Cliente } from "./Cliente";
 import { Filme } from "./Filme";
 
@@ -8,24 +8,22 @@ export class Locacao {
   private _id: number;
   private _cliente: Cliente;
   private _filme: Filme;
-
-  /* Bem possivel que utilizar esses campos com tipo Date quebre tudo
-  fazer o que, ne ^^ */
   private _dataLocacao: number;
   private _dataEntrega: number | undefined;
 
-  // TODO: passar para csv
   private static _locacoesAtivas: Locacao[] = [];
   private static locacoes: Locacao[] = [];
 
-  // TODO: passar para csv
   constructor(cliente: Cliente, filme: Filme, dataLocacao: number) {
+    // Para cada locacao é gerado um id unico baseado no timestamp
     this._id = new Date().getTime();
+
     this._cliente = cliente;
     this._filme = filme;
     this._dataLocacao = dataLocacao;
   }
 
+  // Getters e Setters
   public get id(): number {
     return this._id;
   }
@@ -33,14 +31,20 @@ export class Locacao {
   public static get locacoesAtivas(): Locacao[] {
     return Locacao._locacoesAtivas;
   }
-  public static set locacoesAtivas(value: Locacao[]) {
-    Locacao._locacoesAtivas = value;
+
+  public static set locacoesAtivas(locacoesAtualizadas: Locacao[]) {
+    Locacao._locacoesAtivas = locacoesAtualizadas;
   }
 
   public set dataEntrega(novaData: number) {
     this._dataEntrega = novaData;
   }
 
+  // Metodos de instancia
+
+  // Metodos estaticos
+
+  // Carrega locacoes do arquivo CSV para a aplicacao
   public static async carregarLocacoes(): Promise<void> {
     try {
       Locacao.locacoesAtivas = await Locacao.lerLocacoesCSV(
@@ -53,6 +57,7 @@ export class Locacao {
     }
   }
 
+  // Puxa locacoes do arquivo CSV
   private static lerLocacoesCSV(fileName: string): Promise<Locacao[]> {
     const locacoes: Locacao[] = [];
 
@@ -65,7 +70,7 @@ export class Locacao {
 
           if (!cliente || !filme) {
             console.error(`Dados ausentes para linha: ${JSON.stringify(row)}`);
-            return; // Skip this row if data is missing
+            return;
           }
 
           const locacao = new Locacao(
@@ -84,6 +89,7 @@ export class Locacao {
     });
   }
 
+  // Salva locacoes no arquivo CSV
   private static async salvarLocacoes(): Promise<void> {
     await Locacao.escreverLocacoesCSV(
       "data/locacoesAtivas.csv",
@@ -92,6 +98,7 @@ export class Locacao {
     await Locacao.escreverLocacoesCSV("data/locacoes.csv", Locacao.locacoes);
   }
 
+  // Escreve locacoes no arquivo CSV
   private static async escreverLocacoesCSV(
     fileName: string,
     locacoes: Locacao[]
@@ -115,8 +122,6 @@ export class Locacao {
     stream.end();
   }
 
-  /* TODO: dependendo da arquitetura, criar metodo realizarLocacao()
-    se for o caso: passar para csv ANTES*/
   public static async realizarLocacao(locacao: Locacao): Promise<void> {
     Locacao.locacoes.push(locacao);
     Locacao.locacoesAtivas.push(locacao);
@@ -124,13 +129,14 @@ export class Locacao {
     await Locacao.salvarLocacoes();
   }
 
-  // TODO: implementar metodo encerrarLocacao(): passar para csv ANTES
   public static async encerrarLocacao(id: number): Promise<void> {
+    // Procurar (nas locacoes ativas) a locacao pelo id
     const index = Locacao.locacoesAtivas.findIndex(
       (locacao) => locacao._id === id
     );
 
     if (index !== -1) {
+      // Procurar (no historico de locacoes) a locacao pelo id
       const locacaoEncerrada: Locacao | undefined = Locacao.locacoes.find(
         (locacao) => locacao.id === id
       );
@@ -140,8 +146,10 @@ export class Locacao {
         return;
       }
 
+      // Encerrar locacao no historico
       locacaoEncerrada.dataEntrega = new Date().getTime();
-
+      
+      // Encerrar locacao em locacoes ativas
       const locacaoAtivaEncerrada = Locacao.locacoesAtivas.splice(index, 1);
       console.log(
         `Locacao #${locacaoAtivaEncerrada[0].id} encerrada com sucesso.`
@@ -152,7 +160,7 @@ export class Locacao {
     }
   }
 
-  // TODO: implementar metodo listarLocacoes(): passar para csv ANTES
+  // Lista locacoes ativas
   public static listarLocacoes(): void {
     if (Locacao.locacoesAtivas.length === 0) {
       console.log("Nenhuma locacao ativa.");
@@ -162,13 +170,13 @@ export class Locacao {
         console.log(
           `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${
             locacao._filme.titulo
-          }, Data da Locacao: ${formatDate(locacao._dataLocacao)}`
+          }, Data da Locacao: ${formatarData(locacao._dataLocacao)}`
         );
       });
     }
   }
 
-  // TODO: passar para csv
+  // Lista todas as locacoes ja feitas
   public static listarHistorico(): void {
     if (Locacao.locacoes.length === 0) {
       console.log("Nenhuma locacao encontrada.");
@@ -178,9 +186,9 @@ export class Locacao {
         console.log(
           `ID: #${locacao.id}, Cliente: ${locacao._cliente.nome}, Filme: ${
             locacao._filme.titulo
-          }, Data da Locacao: ${formatDate(
+          }, Data da Locacao: ${formatarData(
             +locacao._dataLocacao
-          )}, Data da Entrega: ${formatDate(locacao._dataEntrega)}`
+          )}, Data da Entrega: ${formatarData(locacao._dataEntrega)}`
         );
       });
     }
