@@ -218,7 +218,7 @@ export class MenuUtils {
           break;
         case 3:
           Locacao.encerrarLocacao(
-            +prompt("Digite o id da locacao a ser encerrada: ")
+            +prompt("Digite o id da locacao a ser encerrada: #")
           );
           MenuUtils.pressioneEnterParaContinuar(prompt);
           break;
